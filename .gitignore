@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Outputs
+output_data/
+runs/
+
+# OS
+.DS_Store
+
+# Large temp files
+*.log

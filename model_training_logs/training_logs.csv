@@ -1,0 +1,10 @@
+category,metric,value,level,source
+Detection Accuracy,mAP@50,0.88,Object-level,Roboflow Validation
+Detection Accuracy,Precision,0.813,Object-level,Roboflow Validation
+Detection Accuracy,Recall,0.826,Object-level,Roboflow Validation
+Detection Accuracy,Detection F1,0.8194,Object-level,Derived (Roboflow P/R)
+System Accuracy,F1_has_solar,0.9149,Image-level,Pipeline Evaluation
+Quantification Quality,MAE_Area_m2,287.977,Image-level,GT vs Pred Masks
+Quantification Quality,RMSE_Capacity_kW,167.048,Image-level,Derived from Area
+Scalability,Time_Complexity,O(N),System-level,Pipeline Analysis
+Scalability,Space_Complexity,O(1) per image,System-level,Pipeline Analysis
