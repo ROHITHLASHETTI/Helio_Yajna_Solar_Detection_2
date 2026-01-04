@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from math import sqrt, pi
-from .utils import IMG_SIZE, CENTER, GSD
+from .utils import IMG_SIZE, CENTER,gsd
 
 AREA_1200_SQFT = 1200
 AREA_2400_SQFT = 2400
@@ -15,9 +15,9 @@ def create_buffer(radius_px):
     cv2.circle(mask, CENTER, int(radius_px), 1, -1)
     BUFFER_CACHE[key] = mask
     return mask
-def select_masks(masks):
-    r1200_px = sqrt((AREA_1200_SQFT * 0.092903) / pi) / GSD
-    r2400_px = sqrt((AREA_2400_SQFT * 0.092903) / pi) / GSD
+def select_masks(masks,lat):
+    r1200_px = sqrt((AREA_1200_SQFT * 0.092903) / pi) / gsd(lat)
+    r2400_px = sqrt((AREA_2400_SQFT * 0.092903) / pi) / gsd(lat)
 
     buffer_1200 = create_buffer(r1200_px)
     buffer_2400 = create_buffer(r2400_px)

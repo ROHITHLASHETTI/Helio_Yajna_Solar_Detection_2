@@ -44,7 +44,7 @@ for _, row in df.iterrows():
     masks, confs = run_inference(model, img_path)
     inference_mode = "PRIMARY"
 
-    buffer_mask, buffer_sqft, r1200, r2400 = select_masks(masks)
+    buffer_mask, buffer_sqft, r1200, r2400 = select_masks(masks,lat)
 
     inside_count = 0
     if buffer_mask is not None and masks:
@@ -63,7 +63,7 @@ for _, row in df.iterrows():
         masks, confs = run_inference(model, enhanced_path)
         inference_mode = "ENHANCED"
 
-        buffer_mask, buffer_sqft, r1200, r2400 = select_masks(masks)
+        buffer_mask, buffer_sqft, r1200, r2400 = select_masks(masks,lat)
         if buffer_mask is not None and masks:
             stacked = np.stack(masks)
             inside_count = np.any(stacked & buffer_mask, axis=(1,2)).sum()
@@ -80,14 +80,14 @@ for _, row in df.iterrows():
         )
         inference_mode = "SAHI"
 
-        buffer_mask, buffer_sqft, r1200, r2400 = select_masks(masks)
+        buffer_mask, buffer_sqft, r1200, r2400 = select_masks(masks,lat)
     green, red = [], []
     total_area, dist, best_conf = 0.0, 0.0, 0.0
 
     for m, c in zip(masks, confs):
         if buffer_mask is not None and (m & buffer_mask).any():
             green.append(m)
-            a, d = area_and_distance(m)
+            a, d = area_and_distance(m,lat)
             total_area += a
             dist = d
             best_conf = max(best_conf, c)
