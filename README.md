@@ -58,7 +58,6 @@ MODEL_PATH=trained_model/weights.pt
 INPUT_FILE=/data/input.xlsx
 OUTPUT_DIR=/app/output_data
 ZOOM_LEVEL=20
-GSD=0.15
 GOOGLE_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
 
 
