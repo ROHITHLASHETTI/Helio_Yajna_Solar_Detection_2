@@ -69,6 +69,16 @@ Do not add quotes around the API key
 .env is read automatically by Docker
 
 🔹 How to Execute (Primary Evaluation Instructions)
+Option A: Quick Run (Using Pre-built Image)
+Use this if you want to test immediately without building.
+code
+Powershell
+docker run --env-file .env `
+>>   -v "${PWD}/input_data:/app/input_data" `
+>>   -v "${PWD}/output_data:/app/output_data" `
+>>   rohithlashetti03/helio_yajna_solar_detection_2:v1
+
+Option B:
 Step 1️⃣ Build the Docker Image
 
 Run this once from the project root:
