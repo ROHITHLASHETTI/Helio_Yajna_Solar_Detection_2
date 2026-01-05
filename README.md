@@ -69,6 +69,8 @@ Do not add quotes around the API key
 .env is read automatically by Docker
 
 🔹 How to Execute (Primary Evaluation Instructions)
+git clone https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2
+cd Helio_Yajna_Solar_Detection_2
 Option A: Quick Run (Using Pre-built Image)
 Use this if you want to test immediately without building.
 code
