@@ -1,147 +1,70 @@
-Helio Yajna – Solar Panel Detection
+☀️ Helio Yajna – Solar Panel Detection
 
 Hackathon Submission | Team HELIO_YAJNA
 
-🔹 What This Project Does (For Evaluators)
+🔍 Project Overview (For Evaluators)
 
-This system detects rooftop solar panels from satellite imagery using a YOLOv8 Instance Segmentation model.
+Helio Yajna is a fully Dockerized, CPU-only, reproducible pipeline that detects rooftop solar panels from satellite imagery using segmentation-based computer vision and governance-aware buffer logic
 
-Input
-An Excel file containing site coordinates (Latitude, Longitude).
+The system is designed for fair evaluation, no GPU dependency, and one-command execution.
 
-Processing
+📥 Input
 
-Fetches satellite images (Google Static Maps)
+An Excel (.xlsx) file containing site coordinates:
 
-Runs segmentation-based solar detection
-
-Applies governance buffer logic (1200 sqft → 2400 sqft)
-
-Uses fallback strategies (image enhancement, SAHI slicing)
-
-Output
-
-Annotated satellite images
-
-One JSON prediction per site
-
-The entire pipeline is Dockerized, CPU-only, and fully reproducible.
-
-🔹 What Evaluators Need Before Running
-1️. Software Requirement
-
-Docker Desktop (Windows / Linux / macOS)
-
-2️. API Requirement
-
-A Google Maps Static API Key
-(must have Static Maps API enabled)
-
-🔹 Input Data Format (Mandatory)
-
-Evaluators must provide an Excel (.xlsx) file with the following columns:
-
-Column	Description
+Column Name	Description
 sample_id	Unique site identifier
 latitude	Latitude (WGS84)
 longitude	Longitude (WGS84)
 
-📁 File location (inside project folder):
+📁 Mandatory path (inside project folder):
 
 input_data/input.xlsx
 
-🔹 Environment Configuration (One-Time Setup)
+⚙️ Processing Pipeline
 
-Create a file named .env in the project root.
+For each site in the Excel file:
 
-MODEL_PATH=trained_model/weights.pt
-INPUT_FILE=/data/input.xlsx
-OUTPUT_DIR=/app/output_data
-ZOOM_LEVEL=20
-GOOGLE_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
+Fetches satellite imagery using Google Static Maps
 
+Runs solar panel instance segmentation
 
-⚠️ Notes for Evaluators:
-
-Do not add quotes around the API key
-
-.env is read automatically by Docker
-
-🔹 How to Execute (Primary Evaluation Instructions)
-git clone https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2
-cd Helio_Yajna_Solar_Detection_2
-Option A: Quick Run (Using Pre-built Image)
-Use this if you want to test immediately without building.
-code
-Powershell
-docker run --env-file .env `
->>   -v "${PWD}/input_data:/app/input_data" `
->>   -v "${PWD}/output_data:/app/output_data" `
->>   rohithlashetti03/helio_yajna_solar_detection_2:v1
-
-Option B:
-Step 1️⃣ Build the Docker Image
-
-Run this once from the project root:
-
-docker build -t helio-yajna-solar-detection .
-
-Step 2️⃣ Run the Pipeline
-▶ Windows (PowerShell)
-docker run --env-file .env `
-  -v ${PWD}\input_data:/data `
-  -v ${PWD}\output_data:/app/output_data `
-  helio-yajna-solar-detection
-
-▶ Linux / macOS
-docker run --env-file .env \
-  -v $(pwd)/input_data:/data \
-  -v $(pwd)/output_data:/app/output_data \
-  helio-yajna-solar-detection
-
-🔹 What Happens During Execution
-
-For each row in the Excel file:
-
-Satellite image is downloaded
-
-Solar panel segmentation is performed
-
-Buffer logic is applied:
+Applies governance buffer logic:
 
 1200 sqft checked first
 
 2400 sqft checked if required
 
-Final decision is made:
+Uses fallback strategies if needed:
 
-SOLAR DETECTED / NO SOLAR DETECTED
+Image enhancement
 
-Outputs are saved automatically
+SAHI slicing
 
-🔹 Console Output Example (What Evaluators Will See)
-[INFO] Processing sample_id: 1
-[INFO] No detections inside buffer → applying image enhancement
-[INFO] Still no detections → running SAHI slicing
-[RESULT] SOLAR DETECTED (buffer=1200 sqft, area=24.1 m²)
-[INFO] Inference mode used: SAHI
+Produces a final decision:
 
-🔹 Output Files Generated
-1️⃣ Annotated Images
+SOLAR DETECTED
+
+NO SOLAR DETECTED
+
+📤 Output
+1️⃣ Annotated Satellite Images
 output_data/artefacts/test/<sample_id>_overlay.jpg
 
 
-Green regions → panels inside buffer
+Legend
 
-Red outlines → panels outside buffer
+🟢 Green → Panels inside buffer
 
-Buffer circles drawn for interpretability
+🔴 Red → Panels outside buffer
 
-2️⃣ JSON Prediction per Site
+⭕ Buffer circles drawn for interpretability
+
+2️⃣ JSON Prediction (One per Site)
 output_data/prediction_files/test/<sample_id>.json
 
 
-Example:
+Example
 
 {
   "sample_id": 1234,
@@ -161,33 +84,120 @@ Example:
   }
 }
 
-🔹 Key Design Decisions (For Judges)
+🧩 What Evaluators Need (Before Running)
+1️⃣ Software Requirement
 
-CPU-only execution (no GPU dependency)
+Docker Desktop
+(Windows / Linux / macOS)
 
-No hardcoded input paths
+2️⃣ API Requirement
 
-No secrets baked into image
+Google Maps Static API Key
 
-External input via volume mount
+Static Maps API must be enabled in Google Cloud Console
 
-Deterministic and reproducible pipeline
+🔐 Environment Configuration (One-Time Setup)
 
-🔹 Common Issues & Fixes
+Create a file named .env in the project root:
+
+MODEL_PATH=trained_model/weights.pt
+INPUT_FILE=/data/input.xlsx
+OUTPUT_DIR=/app/output_data
+ZOOM_LEVEL=20
+GOOGLE_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
+
+
+⚠️ Important Notes
+
+Do NOT add quotes around the API key
+
+.env is read automatically by Docker
+
+No secrets are baked into the image
+
+▶️ How to Execute (Evaluation Instructions)
+Step 1️⃣ Clone the Repository
+git clone https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2
+cd Helio_Yajna_Solar_Detection_2
+
+✅ Option A — Quick Run (Recommended for Judges)
+
+Use the pre-built Docker image (no build required):
+
+▶ Windows (PowerShell)
+docker run --env-file .env `
+  -v "${PWD}/input_data:/data" `
+  -v "${PWD}/output_data:/app/output_data" `
+  rohithlashetti03/helio_yajna_solar_detection_2:v2
+
+▶ Linux / macOS
+docker run --env-file .env \
+  -v $(pwd)/input_data:/data \
+  -v $(pwd)/output_data:/app/output_data \
+  rohithlashetti03/helio_yajna_solar_detection_2:v2
+
+🛠 Option B — Build & Run Locally
+Step 1️⃣ Build the Docker Image
+docker build -t helio-yajna-solar-detection .
+
+Step 2️⃣ Run the Pipeline
+▶ Windows (PowerShell)
+docker run --env-file .env `
+  -v "${PWD}/input_data:/data" `
+  -v "${PWD}/output_data:/app/output_data" `
+  helio-yajna-solar-detection
+
+▶ Linux / macOS
+docker run --env-file .env \
+  -v $(pwd)/input_data:/data \
+  -v $(pwd)/output_data:/app/output_data \
+  helio-yajna-solar-detection
+
+🖥️ Console Output (What Evaluators Will See)
+[INFO] Processing sample_id: 1
+[INFO] No detections inside buffer → applying image enhancement
+[INFO] Still no detections → running SAHI slicing
+[RESULT] SOLAR DETECTED (buffer=1200 sqft, area=24.1 m²)
+[INFO] Inference mode used: SAHI
+
+🧠 Key Design Decisions (For Judges)
+
+✅ CPU-only execution (no GPU dependency)
+
+✅ Fully Dockerized & reproducible
+
+✅ No hardcoded input paths
+
+✅ External data via volume mounts
+
+✅ No secrets inside the image
+
+✅ Deterministic pipeline
+
+✅ Governance-aware buffer logic
+
+✅ Robust fallback inference strategies
+
+❗ Common Issues & Fixes
 ❌ Google API Error (403)
 
 Ensure Static Maps API is enabled
 
-Ensure API key is correct (no quotes)
+Ensure API key is correct
 
-❌ Input file not found
+Ensure no quotes in .env
 
-Ensure input_data/input.xlsx exists
+❌ Input File Not Found
 
-Ensure Docker volume mount path is correct
+Confirm file exists at:
 
-❌ Docker build slow
+input_data/input.xlsx
+
+
+Confirm volume mounts are correct
+
+❌ Docker Build Is Slow
 
 First build installs ML dependencies (expected)
 
-Subsequent builds are fast due to caching
+Subsequent builds are fast due to Docker caching

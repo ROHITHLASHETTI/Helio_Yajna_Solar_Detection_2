@@ -15,7 +15,7 @@ def create_buffer(radius_px):
     cv2.circle(mask, CENTER, int(radius_px), 1, -1)
     BUFFER_CACHE[key] = mask
     return mask
-def select_masks(masks,lat):
+def select_masks(masks, lat):
     r1200_px = sqrt((AREA_1200_SQFT * 0.092903) / pi) / gsd(lat)
     r2400_px = sqrt((AREA_2400_SQFT * 0.092903) / pi) / gsd(lat)
 
@@ -26,11 +26,15 @@ def select_masks(masks,lat):
         return None, 0, r1200_px, r2400_px
 
     for m in masks:
-        if (m & buffer_1200).any():
+        overlap = np.logical_and(m, buffer_1200).sum()
+        mask_area = m.sum()
+        if mask_area > 0 and overlap / mask_area >= 0.15:
             return buffer_1200, AREA_1200_SQFT, r1200_px, r2400_px
 
     for m in masks:
-        if (m & buffer_2400).any():
+        overlap = np.logical_and(m, buffer_2400).sum()
+        mask_area = m.sum()
+        if mask_area > 0 and overlap / mask_area >= 0.15:
             return buffer_2400, AREA_2400_SQFT, r1200_px, r2400_px
 
     return None, 0, r1200_px, r2400_px
