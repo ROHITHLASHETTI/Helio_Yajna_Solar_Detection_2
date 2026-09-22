@@ -15,7 +15,14 @@ export default defineConfig({
             '/api': {
                 target: 'http://localhost:8000',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api/, ''),
+            },
+            '/analyze': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+            },
+            '/bulk-analyze': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
             },
         },
     },
