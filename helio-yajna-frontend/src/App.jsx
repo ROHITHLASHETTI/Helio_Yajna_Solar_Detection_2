@@ -710,15 +710,15 @@ Click **"Bulk Analysis"** to upload CSV or Excel files with multiple coordinates
                     </div>
                 </div>
 
-                <div className="hidden md:flex items-center gap-8 font-semibold tracking-wide text-[#EAE7DD]/80">
-                    <button onClick={() => setShowHowTo(true)} className="hover:text-white transition-colors hover:scale-105 active:scale-95 uppercase text-xs tracking-widest text-[#EAE7DD]">Protocol</button>
-                    <button onClick={() => setShowTeam(true)} className="hover:text-white transition-colors hover:scale-105 active:scale-95 uppercase text-xs tracking-widest text-[#EAE7DD]">Team</button>
-                    <a href="https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors hover:scale-105 active:scale-95 flex items-center gap-1.5 uppercase text-xs tracking-widest text-[#EAE7DD]">
+                <div className="flex items-center gap-3 sm:gap-4 md:gap-8 font-semibold tracking-wide text-[#EAE7DD]/80">
+                    <button onClick={() => setShowHowTo(true)} className="hover:text-white transition-colors hover:scale-105 active:scale-95 uppercase text-[11px] md:text-xs tracking-widest text-[#EAE7DD] px-1.5 py-1">Protocol</button>
+                    <button onClick={() => setShowTeam(true)} className="hover:text-white transition-colors hover:scale-105 active:scale-95 uppercase text-[11px] md:text-xs tracking-widest text-[#EAE7DD] px-1.5 py-1">Team</button>
+                    <a href="https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2" target="_blank" rel="noopener noreferrer" className="hidden sm:flex hover:text-white transition-colors hover:scale-105 active:scale-95 items-center gap-1.5 uppercase text-xs tracking-widest text-[#EAE7DD]">
                         GitHub <ExternalLink className="w-3 h-3 text-[#99775C]" />
                     </a>
                     <button 
                         onClick={() => setShowLanding(!showLanding)} 
-                        className="px-4 py-2 rounded-full bg-[#99775C]/20 hover:bg-[#EAE7DD] text-[#EAE7DD] hover:text-[#20150d] transition-all hover:scale-105 active:scale-95 uppercase text-[10px] font-bold tracking-widest border border-[#99775C]/40"
+                        className="px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-[#99775C]/20 hover:bg-[#EAE7DD] text-[#EAE7DD] hover:text-[#20150d] transition-all hover:scale-105 active:scale-95 uppercase text-[10px] font-bold tracking-widest border border-[#99775C]/40"
                     >
                         {showLanding ? "Dashboard" : "Launch Scout"}
                     </button>
@@ -1381,186 +1381,167 @@ Click **"Bulk Analysis"** to upload CSV or Excel files with multiple coordinates
                             </motion.div>
                         )}
 
-                        {/* Team Modal */}
-                        {showTeam && (
-                            <motion.div key="team-modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/85 backdrop-blur-md z-[60] flex items-center justify-center p-6">
-                                <div className="bg-[#14100c] border border-[#99775C]/30 rounded-3xl w-full max-w-2xl overflow-hidden relative shadow-2xl">
-                                    <button onClick={() => setShowTeam(false)} className="absolute top-4 right-4 p-2 text-[#99775C] hover:text-[#EAE7DD] transition-colors"><X /></button>
-                                    <div className="p-8">
-                                        <h2 className="text-3xl font-bold text-[#EAE7DD] mb-2 font-serif">Team Helio Yajna</h2>
-                                        <p className="text-[#99775C] font-medium mb-8">Vardhaman College of Engineering</p>
-
-                                        <div className="grid gap-4">
-                                            {[
-                                                { name: "Rohith Lashetti", role: "AI Pipeline & Architecture", college: "Vardhaman College of Engineering", github: "https://github.com/ROHITHLASHETTI" },
-                                                { name: "Spandana Gudikandula", role: "Fullstack Systems & Analytics", college: "Vardhaman College of Engineering", github: "https://github.com/ROHITHLASHETTI" },
-                                                { name: "Srikanth Dhanunjay", role: "Computer Vision & Geospatial", college: "Vardhaman College of Engineering", github: "https://github.com/ROHITHLASHETTI" }
-                                            ].map((member, i) => (
-                                                <div key={i} className="p-4 rounded-xl bg-[#1c1712] border border-[#99775C]/20 flex items-center justify-between hover:border-[#99775C]/50 hover:bg-[#241e17] transition-all">
-                                                    <div>
-                                                        <div className="font-bold text-[#EAE7DD] text-lg">{member.name}</div>
-                                                        <div className="text-xs text-[#99775C] font-semibold">{member.role}</div>
-                                                        <div className="text-xs text-[#EAE7DD]/60 mt-0.5">{member.college}</div>
-                                                    </div>
-                                                    <a href={member.github} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-lg bg-[#99775C]/20 border border-[#99775C]/40 text-[#EAE7DD] text-xs font-bold hover:bg-[#99775C] hover:text-[#20150d] transition-all">
-                                                        Profile
-                                                    </a>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="bg-[#0c0a08] p-6 text-center text-sm text-[#EAE7DD]/70 border-t border-[#99775C]/20">
-                                        Check out the project on <a href="https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2" target="_blank" rel="noopener noreferrer" className="text-[#EAE7DD] hover:text-white font-bold underline decoration-[#99775C]">GitHub</a>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Bulk Upload Modal */}
-                        {showBulkModal && (
-                            <motion.div
-                                key="bulk-modal"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-6"
-                            >
-                                <motion.div
-                                    initial={{ scale: 0.9, y: 20 }}
-                                    animate={{ scale: 1, y: 0 }}
-                                    exit={{ scale: 0.9, y: 20 }}
-                                    className="bg-[#0a0a0a] border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden relative p-8"
-                                >
-                                    <button onClick={() => setShowBulkModal(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
-
-                                    <div className="flex flex-col items-center text-center">
-                                        <div className="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-6">
-                                            <FileSpreadsheet className="w-8 h-8" />
-                                        </div>
-
-                                        <h2 className="text-2xl font-bold text-white mb-2">Upload Coordinates</h2>
-                                        <p className="text-gray-400 text-sm mb-8 max-w-xs">
-                                            Drag & drop your CSV or Excel file here to analyze multiple locations at once.
-                                        </p>
-
-                                        {/* Drop Zone */}
-                                        <div
-                                            onDrop={onDrop}
-                                            onDragOver={onDragOver}
-                                            className="w-full h-48 border-2 border-dashed border-white/20 hover:border-blue-500/50 rounded-2xl flex flex-col items-center justify-center bg-white/5 hover:bg-white/10 transition-all cursor-pointer relative group"
-                                        >
-                                            <input
-                                                type="file"
-                                                accept=".csv,.xlsx,.xls"
-                                                onChange={(e) => e.target.files && handleBulkUpload(e.target.files[0])}
-                                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                            />
-                                            <UploadCloud className="w-10 h-10 text-gray-500 group-hover:text-blue-400 mb-4 transition-colors" />
-                                            <span className="text-sm font-bold text-white mb-1">Click or Drag file here</span>
-                                            <span className="text-xs text-gray-500 uppercase tracking-wider font-bold">CSV, Excel</span>
-
-                                            {isBulkAnalyzing && (
-                                                <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-blue-500/20">
-
-                                                    {/* COLLIDING BLUE LINE ANIMATION */}
-                                                    <div className="absolute top-0 left-0 right-0 h-1 bg-white/5 overflow-hidden z-20">
-                                                        <motion.div
-                                                            initial={{ left: "0%", right: "100%" }}
-                                                            animate={{
-                                                                left: ["0%", "45%", "0%"],
-                                                                right: ["100%", "45%", "100%"]
-                                                            }}
-                                                            transition={{
-                                                                duration: 2,
-                                                                ease: "easeInOut",
-                                                                repeat: Infinity,
-                                                                times: [0, 0.5, 1]
-                                                            }}
-                                                            className="absolute top-0 bottom-0 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
-                                                        />
-                                                        <motion.div
-                                                            initial={{ left: "100%", right: "0%" }}
-                                                            animate={{
-                                                                left: ["100%", "55%", "100%"],
-                                                                right: ["0%", "55%", "0%"]
-                                                            }}
-                                                            transition={{
-                                                                duration: 2,
-                                                                ease: "easeInOut",
-                                                                repeat: Infinity,
-                                                                times: [0, 0.5, 1]
-                                                            }}
-                                                            className="absolute top-0 bottom-0 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
-                                                        />
-                                                    </div>
-
-                                                    {/* Skeleton Content */}
-                                                    <div className="w-full h-full p-6 relative flex flex-col">
-                                                        <motion.div
-                                                            variants={shimmer}
-                                                            initial="hidden"
-                                                            animate="visible"
-                                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent z-10"
-                                                        />
-
-                                                        <div className="flex-1 flex flex-col items-center justify-center space-y-4 opacity-50">
-                                                            <div className="w-16 h-16 rounded-full bg-white/10 animate-pulse" />
-                                                            <div className="h-4 w-3/4 bg-white/10 rounded animate-pulse" />
-                                                            <div className="h-3 w-1/2 bg-white/10 rounded animate-pulse" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="absolute inset-0 flex items-center justify-center z-20">
-                                                        <div className="bg-black/80 px-4 py-2 rounded-lg backdrop-blur-md border border-white/10 shadow-xl flex items-center gap-3">
-                                                            <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                                                            <span className="text-xs font-bold text-blue-400 tracking-wider uppercase">Processing Locations...</span>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="mt-6 w-full flex justify-center">
-                                            <button
-                                                onClick={downloadTemplate}
-                                                className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-wider"
-                                            >
-                                                <Download className="w-4 h-4" /> Download Template
-                                            </button>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            </motion.div>
-                        )}
-
-                        {/* How To / Methodology Modal */}
-                        {showHowTo && (
-                            <motion.div key="howto-modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/85 backdrop-blur-md z-[60] flex items-center justify-center p-4">
-                                <div className="bg-[#14100c] border border-[#99775C]/30 rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col relative shadow-2xl">
-                                    <div className="p-6 border-b border-[#99775C]/20 flex justify-between items-center bg-[#0c0a08] rounded-t-3xl">
-                                        <div>
-                                            <h2 className="text-2xl font-bold text-[#EAE7DD] font-serif">Helio Yajna Protocol & Architecture</h2>
-                                            <p className="text-xs text-[#99775C] font-medium mt-0.5">Vardhaman College of Engineering</p>
-                                        </div>
-                                        <button onClick={() => setShowHowTo(false)} className="p-2 text-[#99775C] hover:text-[#EAE7DD] transition-colors"><X /></button>
-                                    </div>
-                                    <div className="p-8 overflow-y-auto custom-scrollbar text-[#EAE7DD]/80 leading-relaxed space-y-4">
-                                        <div className="prose prose-invert max-w-none prose-headings:text-[#EAE7DD] prose-a:text-[#99775C] prose-strong:text-[#EAE7DD]">
-                                            <ReactMarkdown>{HOW_TO_CONTENT}</ReactMarkdown>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
                     </AnimatePresence>
                 </div>
             </motion.div>
             )}
         </AnimatePresence>
-        </div >
 
+        {/* Global Modals (Rendered with z-[9999] so they are never hidden behind maps or landing page) */}
+        <AnimatePresence>
+            {/* Team Modal */}
+            {showTeam && (
+                <motion.div
+                    key="global-team-modal"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setShowTeam(false); }}
+                    className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[9999] flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+                >
+                    <motion.div 
+                        initial={{ scale: 0.95, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.95, y: 20 }}
+                        className="bg-[#14100c] border border-[#99775C]/40 rounded-3xl w-full max-w-2xl overflow-hidden relative shadow-2xl my-auto ring-1 ring-[#99775C]/20"
+                    >
+                        <button onClick={() => setShowTeam(false)} className="absolute top-4 right-4 p-2 text-[#99775C] hover:text-[#EAE7DD] transition-colors rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
+                        <div className="p-6 md:p-8">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="w-2.5 h-2.5 rounded-full bg-[#99775C] animate-pulse"></span>
+                                <h2 className="text-2xl md:text-3xl font-bold text-[#EAE7DD] font-serif">Team Helio Yajna</h2>
+                            </div>
+                            <p className="text-[#99775C] font-semibold text-sm mb-6">Vardhaman College of Engineering</p>
+
+                            <div className="grid gap-3.5">
+                                {[
+                                    { name: "Rohith Lashetti", role: "AI Pipeline & Architecture", college: "Vardhaman College of Engineering", github: "https://github.com/ROHITHLASHETTI" },
+                                    { name: "Spandana Gudikandula", role: "Fullstack Systems & Analytics", college: "Vardhaman College of Engineering", github: "https://github.com/ROHITHLASHETTI" },
+                                    { name: "Srikanth Dhanunjay", role: "Computer Vision & Geospatial", college: "Vardhaman College of Engineering", github: "https://github.com/ROHITHLASHETTI" }
+                                ].map((member, i) => (
+                                    <div key={i} className="p-4 rounded-2xl bg-[#1c1712] border border-[#99775C]/25 flex items-center justify-between hover:border-[#99775C]/60 hover:bg-[#241e17] transition-all group">
+                                        <div>
+                                            <div className="font-bold text-[#EAE7DD] text-base md:text-lg group-hover:text-white transition-colors">{member.name}</div>
+                                            <div className="text-xs text-[#99775C] font-semibold mt-0.5">{member.role}</div>
+                                            <div className="text-xs text-[#EAE7DD]/60 mt-0.5">{member.college}</div>
+                                        </div>
+                                        <a href={member.github} target="_blank" rel="noopener noreferrer" className="px-3.5 py-1.5 rounded-xl bg-[#99775C]/20 border border-[#99775C]/40 text-[#EAE7DD] text-xs font-bold hover:bg-[#99775C] hover:text-[#20150d] transition-all">
+                                            Profile
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-[#0c0a08] p-5 text-center text-xs text-[#EAE7DD]/70 border-t border-[#99775C]/20 flex items-center justify-center gap-1.5">
+                            Check out the project on <a href="https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2" target="_blank" rel="noopener noreferrer" className="text-[#EAE7DD] hover:text-white font-bold underline decoration-[#99775C] inline-flex items-center gap-1">GitHub <ExternalLink className="w-3 h-3 text-[#99775C]" /></a>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+
+            {/* Protocol / Methodology Modal */}
+            {showHowTo && (
+                <motion.div
+                    key="global-howto-modal"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setShowHowTo(false); }}
+                    className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[9999] flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+                >
+                    <motion.div 
+                        initial={{ scale: 0.95, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.95, y: 20 }}
+                        className="bg-[#14100c] border border-[#99775C]/40 rounded-3xl w-full max-w-3xl max-h-[88vh] flex flex-col relative shadow-2xl my-auto overflow-hidden ring-1 ring-[#99775C]/20"
+                    >
+                        <div className="p-6 border-b border-[#99775C]/25 flex justify-between items-center bg-[#0c0a08] rounded-t-3xl">
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#99775C] animate-pulse"></span>
+                                    <h2 className="text-xl md:text-2xl font-bold text-[#EAE7DD] font-serif">Helio Yajna Protocol & Architecture</h2>
+                                </div>
+                                <p className="text-xs text-[#99775C] font-semibold mt-1">Vardhaman College of Engineering</p>
+                            </div>
+                            <button onClick={() => setShowHowTo(false)} className="p-2 text-[#99775C] hover:text-[#EAE7DD] transition-colors rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar text-[#EAE7DD]/80 leading-relaxed space-y-4">
+                            <div className="prose prose-invert max-w-none prose-headings:text-[#EAE7DD] prose-a:text-[#99775C] prose-strong:text-[#EAE7DD] prose-p:text-sm md:prose-p:text-base">
+                                <ReactMarkdown>{HOW_TO_CONTENT}</ReactMarkdown>
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+
+            {/* Bulk Upload Modal */}
+            {showBulkModal && (
+                <motion.div
+                    key="global-bulk-modal"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setShowBulkModal(false); }}
+                    className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[9999] flex items-center justify-center p-4 md:p-6 overflow-y-auto"
+                >
+                    <motion.div
+                        initial={{ scale: 0.95, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.95, y: 20 }}
+                        className="bg-[#14100c] border border-[#99775C]/40 rounded-3xl w-full max-w-lg overflow-hidden relative p-8 shadow-2xl my-auto ring-1 ring-[#99775C]/20"
+                    >
+                        <button onClick={() => setShowBulkModal(false)} className="absolute top-4 right-4 p-2 text-[#99775C] hover:text-[#EAE7DD] transition-colors rounded-full hover:bg-white/5"><X className="w-5 h-5" /></button>
+
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-16 h-16 rounded-2xl bg-[#99775C]/15 border border-[#99775C]/30 text-[#99775C] flex items-center justify-center mb-6">
+                                <FileSpreadsheet className="w-8 h-8" />
+                            </div>
+
+                            <h2 className="text-2xl font-bold text-[#EAE7DD] mb-2 font-serif">Upload Coordinates</h2>
+                            <p className="text-[#EAE7DD]/60 text-sm mb-8 max-w-xs">
+                                Drag & drop your CSV or Excel file here to analyze multiple locations at once.
+                            </p>
+
+                            {/* Drop Zone */}
+                            <div
+                                onDrop={onDrop}
+                                onDragOver={onDragOver}
+                                className="w-full h-48 border-2 border-dashed border-[#99775C]/30 hover:border-[#EAE7DD] rounded-2xl flex flex-col items-center justify-center bg-black/40 hover:bg-[#99775C]/10 transition-all cursor-pointer relative group"
+                            >
+                                <input
+                                    type="file"
+                                    accept=".csv,.xlsx,.xls"
+                                    onChange={(e) => e.target.files && handleBulkUpload(e.target.files[0])}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                />
+                                <UploadCloud className="w-10 h-10 text-[#99775C] group-hover:text-[#EAE7DD] mb-4 transition-colors" />
+                                <span className="text-sm font-bold text-[#EAE7DD] mb-1">Click or Drag file here</span>
+                                <span className="text-xs text-[#99775C] uppercase tracking-wider font-bold">CSV, Excel</span>
+
+                                {isBulkAnalyzing && (
+                                    <div className="absolute inset-0 z-50 bg-[#14100c] flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-[#99775C]/30">
+                                        <div className="flex items-center gap-3">
+                                            <Loader2 className="w-5 h-5 text-[#99775C] animate-spin" />
+                                            <span className="text-xs font-bold text-[#EAE7DD] tracking-wider uppercase">Processing Locations...</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mt-6 w-full flex justify-center">
+                                <button
+                                    onClick={downloadTemplate}
+                                    className="flex items-center gap-2 text-xs font-bold text-[#99775C] hover:text-[#EAE7DD] transition-colors uppercase tracking-wider"
+                                >
+                                    <Download className="w-4 h-4" /> Download Template
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+        </div>
     )
 }
 
