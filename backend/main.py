@@ -21,6 +21,7 @@ from datetime import datetime
 from typing import Optional, List
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Query, status
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -993,6 +994,15 @@ async def export_csv():
     response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
     response.headers["Content-Disposition"] = "attachment; filename=helio_yajna_solar_audit.csv"
     return response
+
+
+# ---------------------------------------------------------------------------
+# 6. Mount Built Frontend (All-in-One Single Service Deployment)
+# ---------------------------------------------------------------------------
+
+FRONTEND_DIST = ROOT_DIR / "helio-yajna-frontend" / "dist"
+if FRONTEND_DIST.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="static_frontend")
 
 
 # ---------------------------------------------------------------------------
