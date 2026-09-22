@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --narvik: #EAE7DD;
+  --sorrell: #99775C;
+  --sorrell-dark: #7a5c43;
+  --sorrell-light: #bda086;
+  --sorrell-dim: rgba(153, 119, 92, 0.2);
+  --narvik-dim: rgba(234, 231, 221, 0.12);
+}
+
+@layer base {
+  body {
+    @apply bg-[#0c0a08] text-[#EAE7DD] overflow-hidden selection:bg-[#99775C]/30;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+}
+
+@layer components {
+
+  /* Narvik + Sorrell Liquid Glass Style */
+  .glass-panel {
+    @apply bg-[#14100c]/80 backdrop-blur-xl border border-[#99775C]/25 shadow-2xl;
+  }
+
+  .glass-liquid {
+    @apply bg-[#EAE7DD]/5 backdrop-blur-2xl border border-[#99775C]/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.45)];
+  }
+
+  /* Input fields in dark mode with Sorrell accents */
+  .uber-input {
+    @apply w-full bg-[#1c1712] text-[#EAE7DD] placeholder-[#99775C]/60 px-4 py-3 rounded-xl border border-[#99775C]/30 focus:ring-2 focus:ring-[#99775C]/40 transition-all font-medium;
+  }
+
+  .uber-input-dark {
+    @apply w-full bg-[#1c1712]/90 text-[#EAE7DD] placeholder-[#99775C]/60 px-4 py-3 rounded-xl border border-[#99775C]/30 focus:ring-2 focus:ring-[#99775C]/40 transition-all font-medium backdrop-blur-md;
+  }
+
+  /* Primary Action Button (Narvik White with Sorrell Accent) */
+  .btn-primary {
+    @apply bg-[#EAE7DD] text-[#20150d] font-bold py-3 px-6 rounded-full hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg hover:shadow-[#99775C]/30 disabled:opacity-50 disabled:cursor-not-allowed border border-[#99775C]/30;
+  }
+
+  .btn-icon {
+    @apply p-3 rounded-full bg-[#EAE7DD] text-[#20150d] hover:scale-105 active:scale-95 transition-all shadow-lg hover:bg-white;
+  }
+
+  .btn-icon-dark {
+    @apply p-3 rounded-full bg-[#1c1712]/80 text-[#EAE7DD] border border-[#99775C]/30 hover:bg-[#2a221a] active:scale-95 transition-all backdrop-blur-md;
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+
+.map-gradient-mask {
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+/* Google Places Autocomplete Overrides - Uber Dark Theme */
+.pac-container {
+  @apply bg-black/90 backdrop-blur-xl border border-white/10 rounded-b-xl shadow-2xl mt-2 font-sans;
+  /* Remove default Google styling artifacts */
+  box-shadow: 0 10px 30px -10px rgba(255, 255, 255, 0.1);
+  border-top: none;
+}
+
+.pac-item {
+  @apply border-white/5 text-gray-400 py-4 px-5 cursor-pointer hover:bg-white/10 transition-colors flex items-center gap-3 !important;
+  /* Use !important to override inline G-Maps styles if necessary, but classes usually win */
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pac-item:first-child {
+  border-top: none;
+}
+
+.pac-item-query {
+  @apply text-white font-bold text-lg;
+}
+
+/* Invert the default Google marker icons to white */
+.pac-icon {
+  filter: invert(1) grayscale(1) brightness(2);
+  opacity: 0.7;
+}
+
+/* Hide the 'Powered by Google' logo if strictly needed for aesthetic (Note: Terms of Service often require attribution, so we might just style it darkly) */
+.pac-logo::after {
+  background-position: right bottom;
+  /* We can't legally hide it easily without violating TOS usually, but we can ensure the container looks good. */
+  filter: invert(1) grayscale(1);
+  opacity: 0.5;
+  margin-right: 12px;
+  margin-bottom: 8px;
+}

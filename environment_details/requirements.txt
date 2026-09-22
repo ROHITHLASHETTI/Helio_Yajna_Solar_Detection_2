@@ -1,16 +1,34 @@
-numpy==1.26.*
-pandas==2.1.*
-scipy
-matplotlib
-seaborn
-opencv-python==4.9.*
-pillow
-scikit-learn
-ultralytics==8.3.0
-sahi
-shapely
-python-dotenv
-tqdm
-pyyaml
-roboflow
+# Core ML
+ultralytics>=8.3.0
+torch
+torchvision
+
+# Data handling
+numpy>=1.26
+pandas>=2.1
 openpyxl
+scipy
+
+# Image processing
+opencv-python>=4.9
+pillow
+
+# API & networking
+requests
+python-dotenv
+
+# Geo / math
+shapely
+
+# Evaluation
+scikit-learn
+
+# Utilities
+pyyaml
+tqdm
+roboflow
+
+# Web app (optional, for backend)
+fastapi
+uvicorn
+python-multipart

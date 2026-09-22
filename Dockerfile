@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for caching)
+# Copy requirements first (for layer caching)
 COPY environment_details/requirements.txt /app/requirements.txt
 
-# Install Python deps (CPU-safe)
+# Install Python deps (CPU-safe, no SAHI)
 RUN pip install --upgrade pip && \
     pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install -r requirements.txt
@@ -22,4 +22,7 @@ COPY . /app
 ENV PYTHONUNBUFFERED=1
 ENV YOLO_CONFIG_DIR=/tmp/Ultralytics
 
-CMD ["python", "-m", "pipeline_code.main"]
+# Run pipeline with CLI support
+# Override via: docker run ... helio-solar --limit 5 --samples "1-10"
+ENTRYPOINT ["python", "-m", "pipeline_code.main"]
+CMD []

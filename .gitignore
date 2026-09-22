@@ -1,16 +1,30 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
 # Environment
 .env
+.env.*
+!.env.example
 
-# Outputs
+# Node / Frontend
+node_modules/
+**/node_modules/
+helio-yajna-frontend/node_modules/
+helio-yajna-frontend/dist/
+.vite/
+
+# Large Model Exports & Binaries (>100MB GitHub Limit)
+trained_model/weights_openvino_model/
+trained_model/weights_local.pt
+*.bin
+
+# Cache & Temp Files
+cache/
 output_data/
 runs/
-
-# OS
-.DS_Store
-
-# Large temp files
 *.log
+.DS_Store
+Thumbs.db

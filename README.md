@@ -1,203 +1,123 @@
-☀️ Helio Yajna – Solar Panel Detection
-
-Hackathon Submission | Team HELIO_YAJNA
-
-🔍 Project Overview (For Evaluators)
-
-Helio Yajna is a fully Dockerized, CPU-only, reproducible pipeline that detects rooftop solar panels from satellite imagery using segmentation-based computer vision and governance-aware buffer logic
-
-The system is designed for fair evaluation, no GPU dependency, and one-command execution.
-
-📥 Input
-
-An Excel (.xlsx) file containing site coordinates:
-
-Column Name	Description
-sample_id	Unique site identifier
-latitude	Latitude (WGS84)
-longitude	Longitude (WGS84)
-
-📁 Mandatory path (inside project folder):
-
-input_data/input.xlsx
-
-⚙️ Processing Pipeline
-
-For each site in the Excel file:
-
-Fetches satellite imagery using Google Static Maps
-
-Runs solar panel instance segmentation
-
-Applies governance buffer logic:
-
-1200 sqft checked first
-
-2400 sqft checked if required
-
-Uses fallback strategies if needed:
-
-Image enhancement
-
-SAHI slicing
-
-Produces a final decision:
-
-SOLAR DETECTED
-
-NO SOLAR DETECTED
-
-📤 Output
-1️⃣ Annotated Satellite Images
-output_data/artefacts/test/<sample_id>_overlay.jpg
-
-
-Legend
-
-🟢 Green → Panels inside buffer
-
-🔴 Red → Panels outside buffer
-
-⭕ Buffer circles drawn for interpretability
-
-2️⃣ JSON Prediction (One per Site)
-output_data/prediction_files/test/<sample_id>.json
-
-
-Example
-
-{
-  "sample_id": 1234,
-  "lat": 12.9716,
-  "lon": 77.5946,
-  "has_solar": true,
-  "confidence": 0.92,
-  "buffer_radius_sqft": 1200,
-  "pv_area_sqm_est": 23.5,
-  "euclidean_distance_m_est": 0,
-  "qc_status": "VERIFIABLE",
-  "bbox_or_mask": "mask",
-  "image_metadata": {
-    "source": "Google Static Maps",
-    "zoom": 20,
-    "inference_mode": "PRIMARY"
-  }
-}
-
-🧩 What Evaluators Need (Before Running)
-1️⃣ Software Requirement
-
-Docker Desktop
-(Windows / Linux / macOS)
-
-2️⃣ API Requirement
-
-Google Maps Static API Key
-
-Static Maps API must be enabled in Google Cloud Console
-
-🔐 Environment Configuration (One-Time Setup)
-
-Create a file named .env in the project root:
-
-MODEL_PATH=trained_model/weights.pt
-INPUT_FILE=/data/input.xlsx
-OUTPUT_DIR=/app/output_data
-ZOOM_LEVEL=20
-GOOGLE_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
-
-
-⚠️ Important Notes
-
-Do NOT add quotes around the API key
-
-.env is read automatically by Docker
-
-No secrets are baked into the image
-
-▶️ How to Execute (Evaluation Instructions)
-Step 1️⃣ Clone the Repository
-git clone https://github.com/ROHITHLASHETTI/Helio_Yajna_Solar_Detection_2
-cd Helio_Yajna_Solar_Detection_2
-
-✅ Option A — Quick Run (Recommended for Judges)
-
-Use the pre-built Docker image (no build required):
-
-▶ Windows (PowerShell)
-docker run --env-file .env `
-  -v "${PWD}/input_data:/data" `
-  -v "${PWD}/output_data:/app/output_data" `
-  rohithlashetti03/helio_yajna_solar_detection_2:v2
-
-▶ Linux / macOS
-docker run --env-file .env \
-  -v $(pwd)/input_data:/data \
-  -v $(pwd)/output_data:/app/output_data \
-  rohithlashetti03/helio_yajna_solar_detection_2:v2
-
-🛠 Option B — Build & Run Locally
-Step 1️⃣ Build the Docker Image
-docker build -t helio-yajna-solar-detection .
-
-Step 2️⃣ Run the Pipeline
-▶ Windows (PowerShell)
-docker run --env-file .env `
-  -v "${PWD}/input_data:/data" `
-  -v "${PWD}/output_data:/app/output_data" `
-  helio-yajna-solar-detection
-
-▶ Linux / macOS
-docker run --env-file .env \
-  -v $(pwd)/input_data:/data \
-  -v $(pwd)/output_data:/app/output_data \
-  helio-yajna-solar-detection
-
-🖥️ Console Output (What Evaluators Will See)
-[INFO] Processing sample_id: 1
-[INFO] No detections inside buffer → applying image enhancement
-[INFO] Still no detections → running SAHI slicing
-[RESULT] SOLAR DETECTED (buffer=1200 sqft, area=24.1 m²)
-[INFO] Inference mode used: SAHI
-
-🧠 Key Design Decisions (For Judges)
-
-✅ CPU-only execution (no GPU dependency)
-
-✅ Fully Dockerized & reproducible
-
-✅ No hardcoded input paths
-
-✅ External data via volume mounts
-
-✅ No secrets inside the image
-
-✅ Deterministic pipeline
-
-✅ Governance-aware buffer logic
-
-✅ Robust fallback inference strategies
-
-❗ Common Issues & Fixes
-❌ Google API Error (403)
-
-Ensure Static Maps API is enabled
-
-Ensure API key is correct
-
-Ensure no quotes in .env
-
-❌ Input File Not Found
-
-Confirm file exists at:
-
-input_data/input.xlsx
-
-
-Confirm volume mounts are correct
-
-❌ Docker Build Is Slow
-
-First build installs ML dependencies (expected)
-
-Subsequent builds are fast due to Docker caching
+# ☀️ HELIO YAJNA — Solar Verification & Energy Intelligence Platform
+
+> **Complete Product Structure • Role-Based Features • High-Speed System Design**  
+> *Official Implementation based on the Revised Product Blueprint*
+
+---
+
+## 🌟 Overview
+
+**Helio Yajna** converts satellite computer-vision rooftop solar detection into a production-grade energy intelligence platform with two unified experiences powered by the same AI verification core:
+1. **Citizen / Common User Experience**: "What is installed at my rooftop?" (Solar verification, capacity estimation, monthly generation history, actionable maintenance recommendations, alert feeds).
+2. **DISCOM Command Center**: "What is happening across our grid service area?" (Executive area KPIs, locality solar coverage, gross energy generation analytics, installation issue tracking, irregularity review center with side-by-side evidence).
+
+---
+
+## 🏗️ 4-Layer Master System Architecture
+
+```mermaid
+flowchart TD
+    subgraph L1 ["1. Identity & Role Layer"]
+        U[User Login / Profile] --> R{Role Routing}
+        R -->|Citizen / Homeowner| CD[Common User Experience]
+        R -->|Grid Engineer / DISCOM| DD[DISCOM Command Center]
+    end
+
+    subgraph L2 ["2. Application & Data Tier"]
+        API[FastAPI Production Server]
+        CACHE[(In-Memory Fast Coordinate Cache)]
+        SQLITE[(SQLite High-Concurrency DB with WAL & Indexes)]
+        API <--> CACHE
+        API <--> SQLITE
+    end
+
+    subgraph L3 ["3. AI & Spatial Verification Engine"]
+        RET[Satellite Retriever: 1280px Scale=2 + CLAHE]
+        YOLO[YOLO Segmentation / Detection Engine]
+        FALLBACK[6-Stage Fallback + Off-Center Rescue]
+        BUFFER[1200 / 2400 sq.ft Spatial Buffer Verification]
+        CALC[Area & Capacity Calculator: 1 kW ≈ 5 m²]
+        RET --> YOLO --> FALLBACK --> BUFFER --> CALC
+    end
+
+    subgraph L4 ["4. Presentation Layer (Black & Solar Yellow UI)"]
+        UI1[Interactive Satellite Map Picker]
+        UI2[Evidence Overlay Viewer with Spotlight]
+        UI3[Monthly Generation Trends: Actual vs Estimated]
+        UI4[DISCOM Locality Grid & Issue Lifecycle Tracker]
+        UI5[Irregularity Side-by-Side Review Queue]
+    end
+
+    CD --> UI1 & UI2 & UI3
+    DD --> UI1 & UI4 & UI5
+    API <--> L3
+```
+
+---
+
+## 🎨 UI Design System: Solar Gold & Deep OLED Black
+
+- **Primary Colors**: Solar Sun Yellow (`#F59E0B`, `#FACC15`, `#FBBF24`) + Deep Obsidian Black (`#07080B`, `#0D0E15`).
+- **Glassmorphism**: Translucent panels with amber atmospheric glow (`backdrop-blur-xl bg-[#0D0E15]/80`).
+- **Interactive Map**: Google Maps Hybrid Satellite canvas with pinpoint targeting, address autocomplete, and preset solar hotspots.
+- **Visual Evidence**: Spotlight visualization darkening non-buffer pixels, semi-transparent green panels inside buffer, red outside.
+
+---
+
+## ⚡ System Design Highlights for Low-Latency Access
+
+1. **In-Memory LRU Cache Tier**:
+   - Geographically hashed coordinate cache in `backend/services.py` serves repeat map queries in **<10ms**.
+2. **SQLite WAL Mode & Compound Indexing**:
+   - High-concurrency reads/writes with `PRAGMA journal_mode = WAL`, 64MB cache, and compound indices on `(lat, lon)`, `locality`, and `status`.
+3. **High-Fidelity Satellite Processing**:
+   - Google Static Maps called with `scale=2` (1280×1280 effective pixels) + CLAHE luminance equalization to guarantee small rooftop panels are never blurred.
+4. **Single Source of Truth**:
+   - When a citizen scans a property, it is stored in the database once and immediately aggregates into DISCOM locality metrics.
+
+---
+
+## 🚀 How to Run the Production System
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+
+### Step 1 — Start the Backend Server (FastAPI)
+```powershell
+# Navigate to project root
+cd c:\Users\rohit\OneDrive\Desktop\Helio
+
+# Start the API server
+python -m backend.main
+```
+> API runs at: **http://localhost:8000**  
+> Interactive OpenAPI Docs: **http://localhost:8000/docs**
+
+### Step 2 — Start the Frontend (React + Vite)
+Open a new terminal:
+```powershell
+cd c:\Users\rohit\OneDrive\Desktop\Helio\frontend
+
+# Install dependencies (first time only)
+npm install
+
+# Start development server
+npm run dev
+```
+> Web UI opens at: **http://localhost:5173/Helio/**
+
+---
+
+## 📋 Evaluation Checklist & Demo Guide
+
+| Flow | What to Demonstrate |
+|---|---|
+| **1. Citizen Scan** | Select "Citizen / Common User" role. Click any point on the map or choose *IIT Madras Solar Rooftop*. Click **Run AI Solar Detection**. Observe 6-stage pipeline execution, verified spotlight overlay, detected $m^2$, and capacity in $kW$. |
+| **2. Energy Trend** | View the monthly generation bar chart comparing **Actual (Smart Meter)** vs **Modeled Estimate** with explicit transparency labeling. |
+| **3. Recommendations** | Review evidence-based maintenance prompts (e.g. *Seasonal Dust & Soiling Clearance* +12.5% yield). Click "Done" to complete. |
+| **4. Role Switch** | Click **DISCOM Command Center** in the top navigation bar. |
+| **5. Locality Analytics** | View Locality A, B, C, D aggregated metrics (18,420 Analyzed, 12,870 Solar Sites, 42.6 MW Capacity, 42.5 GWh Gross Energy). |
+| **6. Installation Issues** | Open the *Installation Issues* tab. View the structured lifecycle: `Open` → `Assigned` → `In Progress` → `Evidence Added` → `Resolved` → `Closed`. Advance an issue status with one click. |
+| **7. Review Center** | Open *Irregularity / Review Center*. Inspect side-by-side evidence for an unregistered 8.4 kW solar site. Enter reviewer notes and click **Approve & Regularize** or **Flag for Inspection**. |
+| **8. Audit Export** | Click **Export CSV** in the navbar to immediately download the verified sites ledger. |

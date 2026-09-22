@@ -1,46 +1,45 @@
+"""
+Visualization overlay using spotlight effect.
+Adapted from Dude-Coders for Helio Yajna pipeline.
+"""
 import cv2
-import numpy as np
-from .utils import CENTER
-def draw_overlay(
-    img,
-    green_masks,
-    red_masks,
-    radius_1200_px,
-    radius_2400_px
-):
-    h, w = img.shape[:2]
-    center = (w // 2, h // 2)
-    for m in red_masks:
-        if m.shape[:2] != (h, w):
-            m = cv2.resize(m, (w, h), interpolation=cv2.INTER_NEAREST)
+from .utils import create_spotlight_overlay
 
-        contours, _ = cv2.findContours(
-            m.astype("uint8"),
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
-        )
-        cv2.drawContours(img, contours, -1, (0, 0, 255), 2)
-    for m in green_masks:
-        if m.shape[:2] != (h, w):
-            m = cv2.resize(m, (w, h), interpolation=cv2.INTER_NEAREST)
 
-        overlay = np.zeros_like(img)
-        overlay[:, :, 1] = m * 255
-        img[:] = cv2.addWeighted(img, 1.0, overlay, 0.4, 0)
-    if radius_2400_px > 0:
-        cv2.circle(
-            img,
-            center,
-            int(radius_2400_px),
-            (0, 165, 255),  # ORANGE
-            2
-        )
+def draw_overlay(img, green_boxes, red_boxes, radius_pixels, sample_id="",
+                 has_solar=False, detection_method="", buffer_size=0, confidence=0.0):
+    """
+    Draw a spotlight overlay on the image:
+      - Darkens region outside the buffer circle
+      - Green semi-transparent boxes for detected (inside buffer)
+      - Red semi-transparent boxes for rejected candidates
+      - Text annotation with detection result
 
-    if radius_1200_px > 0:
-        cv2.circle(
-            img,
-            center,
-            int(radius_1200_px),
-            (0, 255, 255),  # YELLOW
-            2
-        )
+    Returns the annotated image (modifies in-place and returns it).
+    """
+    center = (img.shape[1] // 2, img.shape[0] // 2)
+
+    annotated = create_spotlight_overlay(
+        img, center, radius_pixels,
+        boxes_inside=green_boxes,
+        boxes_outside=red_boxes,
+        active_box=float(confidence) if has_solar else None,
+    )
+
+    # Text overlay
+    color = (0, 255, 0) if has_solar else (0, 0, 255)
+    method_tag = f" [{detection_method.upper()}]" if detection_method not in ("initial", "") else ""
+    cv2.putText(
+        annotated,
+        f"ID: {sample_id}  Solar: {has_solar}  Buffer: {buffer_size} sqft{method_tag}",
+        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2,
+    )
+    cv2.putText(
+        annotated,
+        f"Conf: {confidence:.3f}  Method: {detection_method}",
+        (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1,
+    )
+
+    # Copy back into original array
+    img[:] = annotated
+    return img

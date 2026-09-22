@@ -1,23 +1,28 @@
-name: helio_yajna_env
+name: solar-panel-detection
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.10
+  - python=3.12.11
   - pip
-  - numpy=1.26.*
-  - pandas=2.1.*
-  - scipy
-  - matplotlib
-  - seaborn
-  - opencv=4.9.*
-  - pillow
-  - scikit-learn
   - pip:
-      - ultralytics==8.3.0
-      - roboflow
-      - sahi
-      - shapely
-      - python-dotenv
-      - tqdm
-      - pyyaml
+    - ultralytics
+    - roboflow
+    - Pillow
+    - pandas
+    - openpyxl
+    - requests
+    - opencv-python
+    - numpy
+    - scipy
+    - python-dotenv
+    - pyyaml
+    - fastapi
+    - uvicorn
+    - python-multipart
+    - google-generativeai
+    - langgraph
+    - langchain-google-genai
+    - langchain-core
+    - pydantic
+    - langchain-openai
