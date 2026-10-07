@@ -15,8 +15,8 @@ from datetime import datetime
 from pathlib import Path
 from contextlib import contextmanager
 
-DB_DIR = Path(__file__).parent.parent / "database_store"
-DB_DIR.mkdir(exist_ok=True)
+DB_DIR = Path(os.getenv("DATABASE_DIR", str(Path(__file__).parent.parent / "database_store")))
+DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / "helio_yajna.db"
 
 

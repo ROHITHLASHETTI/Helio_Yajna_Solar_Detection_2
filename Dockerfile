@@ -1,15 +1,19 @@
 # Stage 1: Build Frontend (Node.js)
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app/frontend
 
 COPY helio-yajna-frontend/package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 COPY helio-yajna-frontend/ ./
-RUN npm run build
+ARG VITE_API_BASE_URL=
+ARG VITE_GOOGLE_MAPS_API_KEY=
+RUN VITE_API_BASE_URL="$VITE_API_BASE_URL" \
+    VITE_GOOGLE_MAPS_API_KEY="$VITE_GOOGLE_MAPS_API_KEY" \
+    npm run build
 
 # Stage 2: Fullstack Python Backend & Static Server
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 

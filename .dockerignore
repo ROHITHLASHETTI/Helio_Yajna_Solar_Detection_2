@@ -1,8 +1,12 @@
 .env
+**/.env
+**/.env.*
 __pycache__/
 *.pyc
 .git
 .gitignore
 output_data/
 runs/
+helio-yajna-frontend/node_modules/
+helio-yajna-frontend/dist/
 .DS_Store

@@ -121,3 +121,30 @@ npm run dev
 | **6. Installation Issues** | Open the *Installation Issues* tab. View the structured lifecycle: `Open` → `Assigned` → `In Progress` → `Evidence Added` → `Resolved` → `Closed`. Advance an issue status with one click. |
 | **7. Review Center** | Open *Irregularity / Review Center*. Inspect side-by-side evidence for an unregistered 8.4 kW solar site. Enter reviewer notes and click **Approve & Regularize** or **Flag for Inspection**. |
 | **8. Audit Export** | Click **Export CSV** in the navbar to immediately download the verified sites ledger. |
+
+## Render Docker Deployment
+
+The Docker image uses the same model and inference code as the local app. It
+builds the frontend and serves it with FastAPI from one service. The frontend
+API base URL should remain empty so requests use the same Render origin.
+
+Set the following in Render:
+
+- Docker build argument `VITE_GOOGLE_MAPS_API_KEY`, using the frontend Maps
+    key. This key is public in the browser bundle; restrict it to the Maps APIs
+    and web origins you use.
+- Docker build argument `VITE_API_BASE_URL` as an empty value for this combined
+    frontend/backend service.
+- Runtime environment variable `GOOGLE_MAPS_API_KEY`, using the backend Static
+    Maps key from your local environment.
+- Keep the Docker start command from the Dockerfile so the server binds to
+    Render's `PORT` value.
+- For persistent database changes, attach a Render disk mounted at `/var/data`
+    and set `DATABASE_DIR=/var/data`. The first start on an empty disk initializes
+    a fresh database; copy the local database to the disk if its existing records
+    must also match.
+
+The project environment specifies Python 3.12, and the frontend lockfile is
+used in the image build. Both local and Docker inference use CPU in the checked
+local environment. Render still needs the same API keys configured because
+local `.env` files are intentionally excluded from the Docker build.
