@@ -44,12 +44,13 @@ class InferenceService:
         try:
             _, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
             img_b64 = base64.b64encode(buffer).decode("utf-8")
+            timeout_seconds = float(os.getenv("GPU_INFERENCE_API_TIMEOUT_SECONDS", "120"))
             
             t0 = time.time()
             resp = requests.post(
                 url,
                 json={"image_base64": img_b64, "lat": lat, "lon": lon},
-                timeout=10.0
+                timeout=timeout_seconds
             )
             if resp.status_code == 200:
                 data = resp.json()
