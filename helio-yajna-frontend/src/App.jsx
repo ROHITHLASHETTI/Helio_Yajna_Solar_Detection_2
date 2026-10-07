@@ -11,14 +11,13 @@ import SatelliteLeafletMap from './SatelliteLeafletMap.jsx'
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
 // Configure API Base URL
-const API_BASE_URL = import.meta.env.PROD
-    ? "https://sue-asymmetric-nonprogressively.ngrok-free.dev"
-    : "/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 // Configure Axios Global Defaults
 axios.defaults.baseURL = API_BASE_URL;
-// Bypass Ngrok Browser Warning
-axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
+if (API_BASE_URL.includes('ngrok')) {
+    axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
+}
 
 const mapContainerStyle = {
     width: '100vw',
