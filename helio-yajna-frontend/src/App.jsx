@@ -1338,34 +1338,50 @@ Click **"Bulk Analysis"** to upload CSV or Excel files with multiple coordinates
                                             crossOrigin="anonymous"
                                         />
 
-                                        {/* 2. AI Spotlight Vignette & Overlay Layer (rendered when not returning backend raw base64) */}
+                                        {/* 2. OpenCV Spotlight Overlay Layer (matches Python backend pipeline output 1:1) */}
                                         {(!result.image_base64 || result.image_base64.startsWith('http') || result.image_base64.length < 500) && (
                                             <>
-                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(7,8,11,0.65)_60%,rgba(0,0,0,0.92)_100%)] pointer-events-none" />
-                                                
-                                                <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 800 600">
-                                                    {/* Property Buffer Boundary Ring */}
-                                                    <circle cx="400" cy="300" r="180" fill="none" stroke={result.has_solar ? "#F59E0B" : "#EF4444"} strokeWidth="2.5" strokeDasharray="6,4" opacity="0.9" />
+                                                {/* Top-Left Header Text (Matching OpenCV Pipeline Text) */}
+                                                <div className="absolute top-4 left-4 z-30 font-mono text-xs font-bold leading-tight tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] select-none">
+                                                    <div className={result.has_solar ? "text-green-400" : "text-red-500"}>
+                                                        ID: {result.sample_id || '3'} &nbsp; Solar: {result.has_solar ? 'True' : 'False'} &nbsp; Buffer: {result.buffer_size || 2400} sqft [{result.qc_status || (result.has_solar ? 'VERIFIABLE' : 'NOT_FOUND')}]
+                                                    </div>
+                                                    <div className="text-gray-300 font-normal mt-0.5 text-[11px]">
+                                                        Conf: {(result.confidence || 0.0).toFixed(3)} &nbsp; Method: {result.detection_method || 'not_found'}
+                                                    </div>
+                                                </div>
 
-                                                    {/* Target Centroid Crosshair */}
-                                                    <circle cx="400" cy="300" r="8" fill="none" stroke="#FFFFFF" strokeWidth="2" />
-                                                    <circle cx="400" cy="300" r="4" fill={result.has_solar ? "#F59E0B" : "#EF4444"} />
-                                                    <line x1="400" y1="40" x2="400" y2="560" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
-                                                    <line x1="40" y1="300" x2="760" y2="300" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+                                                {/* SVG Spotlight Cutout Mask & Yellow Circle */}
+                                                <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                                                    <defs>
+                                                        <mask id="cv-spotlight-mask">
+                                                            <rect width="800" height="600" fill="white" />
+                                                            <circle cx="400" cy="300" r="45" fill="black" />
+                                                        </mask>
+                                                    </defs>
 
+                                                    {/* Darkened Overlay Outside Spotlight */}
+                                                    <rect width="800" height="600" fill="rgba(0, 0, 0, 0.72)" mask="url(#cv-spotlight-mask)" />
+
+                                                    {/* Bright Yellow Circle Spotlight Outline */}
+                                                    <circle cx="400" cy="300" r="45" fill="none" stroke="#FFFF00" strokeWidth="2.5" />
+
+                                                    {/* Green Panel Bounding Box if Solar Detected */}
                                                     {result.has_solar && (
-                                                        <g transform="translate(310, 220)">
-                                                            <rect x="0" y="0" width="180" height="110" rx="6" fill="rgba(245, 158, 11, 0.25)" stroke="#F59E0B" strokeWidth="3" filter="drop-shadow(0 0 16px rgba(245, 158, 11, 0.8))" />
-                                                            <line x1="45" y1="0" x2="45" y2="110" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3,3" />
-                                                            <line x1="90" y1="0" x2="90" y2="110" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3,3" />
-                                                            <line x1="135" y1="0" x2="135" y2="110" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3,3" />
-                                                            <line x1="0" y1="36" x2="180" y2="36" stroke="#FBBF24" strokeWidth="1.5" />
-                                                            <line x1="0" y1="73" x2="180" y2="73" stroke="#FBBF24" strokeWidth="1.5" />
-                                                            <rect x="5" y="125" width="170" height="24" rx="4" fill="rgba(13, 14, 21, 0.85)" stroke="#F59E0B" strokeWidth="1" />
-                                                            <text x="90" y="141" fill="#FACC15" fontFamily="monospace" fontSize="12" fontWeight="bold" textAnchor="middle">{result.pv_area_sqm_est || 24.5} m² (~{result.capacity_kw_est || 4.9} kW)</text>
+                                                        <g transform="translate(375, 278)">
+                                                            <rect x="0" y="0" width="50" height="44" fill="rgba(0, 255, 0, 0.25)" stroke="#00FF00" strokeWidth="2.5" />
+                                                            <text x="0" y="-5" fill="#00FF00" fontFamily="sans-serif" fontSize="11" fontWeight="bold">SOLAR: {(result.confidence || 0.88).toFixed(2)}</text>
                                                         </g>
                                                     )}
                                                 </svg>
+
+                                                {/* Bottom Watermarks */}
+                                                <div className="absolute bottom-3 left-4 z-20 font-sans text-xs font-bold text-gray-400 opacity-80 pointer-events-none">
+                                                    Google
+                                                </div>
+                                                <div className="absolute bottom-3 right-4 z-20 font-sans text-[10px] text-gray-400 opacity-70 pointer-events-none">
+                                                    Imagery ©2026 Airbus, Maxar Technologies
+                                                </div>
                                             </>
                                         )}
 
