@@ -3,7 +3,7 @@ FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 
 COPY helio-yajna-frontend/package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 COPY helio-yajna-frontend/ ./
 RUN npm run build
