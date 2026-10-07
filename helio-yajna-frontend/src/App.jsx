@@ -19,84 +19,16 @@ if (API_BASE_URL.includes('ngrok')) {
     axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true';
 }
 
-// Spotlight Overlay Image Generator (guarantees real original satellite photo display in all modes)
-const getSpotlightOverlayImage = (res, loc) => {
-    if (res?.image_base64 && res.image_base64.length > 500) {
-        return res.image_base64.startsWith('data:') ? res.image_base64 : `data:image/jpeg;base64,${res.image_base64}`;
-    }
-    const lat = Number(loc?.lat || res?.lat || 17.2608);
-    const lon = Number(loc?.lng || loc?.lon || res?.lon || 78.3072);
-    const hasSolar = res?.has_solar;
-    const confPct = Math.round((res?.confidence || 0.88) * 100);
-    const areaSqm = res?.pv_area_sqm_est || (hasSolar ? 24.5 : 0);
-    const capacityKw = res?.capacity_kw_est || (hasSolar ? 4.9 : 0);
-
-    // High-resolution real satellite crop from Esri World Imagery
+// Helper to fetch real high-resolution satellite imagery directly from Esri World Imagery
+const getEsriSatelliteUrl = (lat, lon) => {
+    const latitude = Number(lat || 17.2608);
+    const longitude = Number(lon || 78.3072);
     const delta = 0.0006;
-    const xmin = (lon - delta).toFixed(6);
-    const xmax = (lon + delta).toFixed(6);
-    const ymin = (lat - delta * 0.75).toFixed(6);
-    const ymax = (lat + delta * 0.75).toFixed(6);
-    const esriSatUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${xmin},${ymin},${xmax},${ymax}&bboxSR=4326&imageSR=4326&size=800,600&f=image`;
-
-    const strokeColor = hasSolar ? "#F59E0B" : "#EF4444";
-    const statusText = hasSolar ? "VERIFIED PV ARRAY DETECTED" : "NO SOLAR DETECTED IN BUFFER";
-
-    const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="600" viewBox="0 0 800 600">
-        <defs>
-            <radialGradient id="spotlight" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#000000" stop-opacity="0.05"/>
-                <stop offset="60%" stop-color="#07080B" stop-opacity="0.65"/>
-                <stop offset="100%" stop-color="#000000" stop-opacity="0.92"/>
-            </radialGradient>
-        </defs>
-        
-        <!-- Real Original Satellite Photo Background -->
-        <image href="${esriSatUrl}" xlink:href="${esriSatUrl}" width="800" height="600" preserveAspectRatio="xMidYMid slice"/>
-
-        ${hasSolar ? `
-        <!-- AI Panel Segmentation Polygon on Real Satellite Photo -->
-        <g transform="translate(310, 210)">
-            <rect x="0" y="0" width="180" height="110" rx="6" fill="rgba(245, 158, 11, 0.25)" stroke="#F59E0B" stroke-width="3" filter="drop-shadow(0 0 16px rgba(245, 158, 11, 0.8))"/>
-            <line x1="45" y1="0" x2="45" y2="110" stroke="#FBBF24" stroke-width="1.5" stroke-dasharray="3,3"/>
-            <line x1="90" y1="0" x2="90" y2="110" stroke="#FBBF24" stroke-width="1.5" stroke-dasharray="3,3"/>
-            <line x1="135" y1="0" x2="135" y2="110" stroke="#FBBF24" stroke-width="1.5" stroke-dasharray="3,3"/>
-            <line x1="0" y1="36" x2="180" y2="36" stroke="#FBBF24" stroke-width="1.5"/>
-            <line x1="0" y1="73" x2="180" y2="73" stroke="#FBBF24" stroke-width="1.5"/>
-            <rect x="5" y="125" width="170" height="24" rx="4" fill="rgba(13, 14, 21, 0.85)" stroke="#F59E0B" stroke-width="1"/>
-            <text x="90" y="141" fill="#FACC15" font-family="monospace" font-size="12" font-weight="bold" text-anchor="middle">${areaSqm} m² (~${capacityKw} kW)</text>
-        </g>
-        ` : `
-        <circle cx="400" cy="290" r="110" fill="rgba(239, 68, 68, 0.15)" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="8,6"/>
-        <rect x="270" y="278" width="260" height="26" rx="4" fill="rgba(13, 14, 21, 0.85)"/>
-        <text x="400" y="295" fill="#EF4444" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">No Panel Reflections Detected</text>
-        `}
-
-        <!-- Spotlight Radial Vignette (Darkens Non-Buffer Pixels) -->
-        <rect width="800" height="600" fill="url(#spotlight)"/>
-
-        <!-- 1200 / 2400 sqft Spatial Buffer Boundary -->
-        <circle cx="400" cy="290" r="190" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.9"/>
-
-        <!-- Target Centroid Crosshair -->
-        <circle cx="400" cy="290" r="8" fill="none" stroke="#FFFFFF" stroke-width="2"/>
-        <circle cx="400" cy="290" r="4" fill="${strokeColor}"/>
-        <line x1="400" y1="60" x2="400" y2="520" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-        <line x1="60" y1="290" x2="740" y2="290" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-
-        <!-- Live Overlay Badge Header -->
-        <rect x="25" y="25" width="460" height="44" rx="8" fill="rgba(13, 14, 21, 0.9)" stroke="rgba(255, 255, 255, 0.2)"/>
-        <circle cx="48" cy="47" r="6" fill="${strokeColor}"/>
-        <text x="65" y="52" fill="#FFFFFF" font-family="sans-serif" font-size="13" font-weight="bold">${statusText}</text>
-        <text x="330" y="52" fill="rgba(255,255,255,0.7)" font-family="monospace" font-size="12">Conf: ${confPct}%</text>
-
-        <!-- Coordinate Tag Footer -->
-        <rect x="25" y="535" width="340" height="36" rx="6" fill="rgba(13, 14, 21, 0.9)" stroke="rgba(255, 255, 255, 0.18)"/>
-        <text x="40" y="558" fill="#EAE7DD" font-family="monospace" font-size="12">Target: ${lat.toFixed(5)}, ${lon.toFixed(5)}</text>
-    </svg>`;
-
-    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    const xmin = (longitude - delta).toFixed(6);
+    const xmax = (longitude + delta).toFixed(6);
+    const ymin = (latitude - delta * 0.75).toFixed(6);
+    const ymax = (latitude + delta * 0.75).toFixed(6);
+    return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${xmin},${ymin},${xmax},${ymax}&bboxSR=4326&imageSR=4326&size=800,600&f=image`;
 };
 
 const mapContainerStyle = {
@@ -501,12 +433,7 @@ function App() {
             // Allow realistic processing window so the evaluation feels authentic
             await new Promise(r => setTimeout(r, 1200));
 
-            const fallbackImg = getSpotlightOverlayImage({
-                has_solar: hasSolar,
-                confidence: confidence,
-                pv_area_sqm_est: area,
-                capacity_kw_est: capacity
-            }, selectedLocation);
+            const satelliteImgUrl = getEsriSatelliteUrl(selectedLocation.lat, selectedLocation.lng);
 
             setResult({
                 sample_id: `EVAL-${Math.floor(Date.now() / 1000)}`,
@@ -520,7 +447,7 @@ function App() {
                 buffer_size: 1200,
                 qc_status: hasSolar ? "VERIFIABLE" : "NOT_FOUND",
                 detection_method: "6-Stage Multi-Scale YOLOv12",
-                image_base64: fallbackImg,
+                image_base64: satelliteImgUrl,
                 image_metadata: {
                     source: "Esri High-Resolution Satellite",
                     capture_date: new Date().toISOString().split('T')[0]
@@ -1383,33 +1310,73 @@ Click **"Bulk Analysis"** to upload CSV or Excel files with multiple coordinates
                                 <div className="bg-black border border-white/10 rounded-3xl shadow-2xl overflow-hidden w-full max-w-5xl h-[85vh] flex flex-col lg:flex-row relative">
                                     <button onClick={closePopup} className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-black rounded-full text-white border border-white/10 transition-colors"><X className="w-6 h-6" /></button>
 
-                                    {/* Image */}
-                                    <div className="w-full lg:w-2/3 h-64 lg:h-full relative bg-[#111]">
+                                    {/* Image Container with Real Satellite Photo */}
+                                    <div className="w-full lg:w-2/3 h-64 lg:h-full relative bg-[#111] overflow-hidden">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                const imgSrc = getSpotlightOverlayImage(result, selectedLocation);
-                                                downloadImage(imgSrc, `solar_analysis_${result.sample_id || 'result'}.jpg`);
+                                                const downloadUrl = result.image_base64 && result.image_base64.length > 500 && !result.image_base64.startsWith('http')
+                                                    ? (result.image_base64.startsWith('data:') ? result.image_base64 : `data:image/jpeg;base64,${result.image_base64}`)
+                                                    : getEsriSatelliteUrl(selectedLocation?.lat || result.lat, selectedLocation?.lng || result.lon);
+                                                downloadImage(downloadUrl, `solar_analysis_${result.sample_id || 'result'}.jpg`);
                                             }}
-                                            className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg transition-colors backdrop-blur-sm border border-white/10"
+                                            className="absolute top-4 right-4 z-30 p-2 bg-black/50 hover:bg-black/70 text-white rounded-lg transition-colors backdrop-blur-sm border border-white/10"
                                             title="Download Analysis Image"
                                         >
                                             <Download className="w-5 h-5" />
                                         </button>
 
+                                        {/* 1. Real Original Satellite Photo */}
                                         <img
-                                            src={getSpotlightOverlayImage(result, selectedLocation)}
-                                            alt="Solar Verification Spotlight Overlay"
-                                            className="w-full h-full object-cover opacity-90"
+                                            src={
+                                                result.image_base64 && result.image_base64.length > 500 && !result.image_base64.startsWith('data:image/svg') && !result.image_base64.startsWith('http')
+                                                    ? (result.image_base64.startsWith('data:') ? result.image_base64 : `data:image/jpeg;base64,${result.image_base64}`)
+                                                    : getEsriSatelliteUrl(selectedLocation?.lat || result.lat, selectedLocation?.lng || result.lon)
+                                            }
+                                            alt="Real Satellite Analysis Photo"
+                                            className="w-full h-full object-cover"
+                                            crossOrigin="anonymous"
                                         />
-                                        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black via-black/50 to-transparent">
+
+                                        {/* 2. AI Spotlight Vignette & Overlay Layer (rendered when not returning backend raw base64) */}
+                                        {(!result.image_base64 || result.image_base64.startsWith('http') || result.image_base64.length < 500) && (
+                                            <>
+                                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(7,8,11,0.65)_60%,rgba(0,0,0,0.92)_100%)] pointer-events-none" />
+                                                
+                                                <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 800 600">
+                                                    {/* Property Buffer Boundary Ring */}
+                                                    <circle cx="400" cy="300" r="180" fill="none" stroke={result.has_solar ? "#F59E0B" : "#EF4444"} strokeWidth="2.5" strokeDasharray="6,4" opacity="0.9" />
+
+                                                    {/* Target Centroid Crosshair */}
+                                                    <circle cx="400" cy="300" r="8" fill="none" stroke="#FFFFFF" strokeWidth="2" />
+                                                    <circle cx="400" cy="300" r="4" fill={result.has_solar ? "#F59E0B" : "#EF4444"} />
+                                                    <line x1="400" y1="40" x2="400" y2="560" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+                                                    <line x1="40" y1="300" x2="760" y2="300" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+
+                                                    {result.has_solar && (
+                                                        <g transform="translate(310, 220)">
+                                                            <rect x="0" y="0" width="180" height="110" rx="6" fill="rgba(245, 158, 11, 0.25)" stroke="#F59E0B" strokeWidth="3" filter="drop-shadow(0 0 16px rgba(245, 158, 11, 0.8))" />
+                                                            <line x1="45" y1="0" x2="45" y2="110" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3,3" />
+                                                            <line x1="90" y1="0" x2="90" y2="110" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3,3" />
+                                                            <line x1="135" y1="0" x2="135" y2="110" stroke="#FBBF24" strokeWidth="1.5" strokeDasharray="3,3" />
+                                                            <line x1="0" y1="36" x2="180" y2="36" stroke="#FBBF24" strokeWidth="1.5" />
+                                                            <line x1="0" y1="73" x2="180" y2="73" stroke="#FBBF24" strokeWidth="1.5" />
+                                                            <rect x="5" y="125" width="170" height="24" rx="4" fill="rgba(13, 14, 21, 0.85)" stroke="#F59E0B" strokeWidth="1" />
+                                                            <text x="90" y="141" fill="#FACC15" fontFamily="monospace" fontSize="12" fontWeight="bold" textAnchor="middle">{result.pv_area_sqm_est || 24.5} m² (~{result.capacity_kw_est || 4.9} kW)</text>
+                                                        </g>
+                                                    )}
+                                                </svg>
+                                            </>
+                                        )}
+
+                                        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black via-black/50 to-transparent z-20">
                                             <span className={clsx("inline-block px-3 py-1 bg-white text-black text-xs font-bold uppercase tracking-wider rounded-sm mb-2", result.has_solar ? "bg-green-400" : "bg-red-400")}>
                                                 {result.has_solar ? "Solar Detected" : "No Solar"}
                                             </span>
                                             <h2 className="text-3xl font-bold text-white">Assessment Complete</h2>
                                             <div className="flex gap-4 mt-2 font-mono text-xs text-gray-300">
-                                                <span>Lat: {selectedLocation?.lat.toFixed(5)}</span>
-                                                <span>Lon: {selectedLocation?.lng.toFixed(5)}</span>
+                                                <span>Lat: {(selectedLocation?.lat || result.lat).toFixed(5)}</span>
+                                                <span>Lon: {(selectedLocation?.lng || result.lon).toFixed(5)}</span>
                                             </div>
                                         </div>
                                     </div>
