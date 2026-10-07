@@ -31,113 +31,6 @@ const getEsriSatelliteUrl = (lat, lon) => {
     return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${xmin},${ymin},${xmax},${ymax}&bboxSR=4326&imageSR=4326&size=800,600&f=image`;
 };
 
-// Canvas Spotlight Image Generator: Bakes satellite photo & OpenCV spotlight graphics into a real JPEG data URL
-const renderSpotlightCanvasDataUrl = (res, loc) => {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 800;
-        canvas.height = 600;
-        const ctx = canvas.getContext('2d');
-
-        const lat = Number(loc?.lat || res?.lat || 17.2608);
-        const lon = Number(loc?.lng || loc?.lon || res?.lon || 78.3072);
-        const hasSolar = Boolean(res?.has_solar);
-        const conf = Number(res?.confidence || 0.88);
-        const bufSize = res?.buffer_size || (hasSolar ? 1200 : 2400);
-        const qcStatus = res?.qc_status || (hasSolar ? "VERIFIABLE" : "NOT_FOUND");
-        const method = res?.detection_method || "6-Stage Multi-Scale YOLOv12";
-        const sampleId = res?.sample_id || `EVAL-${Math.floor(Date.now() / 1000)}`;
-
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        const delta = 0.0006;
-        const xmin = (lon - delta).toFixed(6);
-        const xmax = (lon + delta).toFixed(6);
-        const ymin = (lat - delta * 0.75).toFixed(6);
-        const ymax = (lat + delta * 0.75).toFixed(6);
-        const esriUrl = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${xmin},${ymin},${xmax},${ymax}&bboxSR=4326&imageSR=4326&size=800,600&f=image`;
-
-        const renderGraphics = () => {
-            try {
-                // 1. Draw Satellite Background Image
-                if (img.complete && img.naturalWidth !== 0) {
-                    ctx.drawImage(img, 0, 0, 800, 600);
-                } else {
-                    ctx.fillStyle = '#0c0e14';
-                    ctx.fillRect(0, 0, 800, 600);
-                }
-
-                // 2. Spotlight Mask (Darken everything outside spotlight circle)
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = 800;
-                tempCanvas.height = 600;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCtx.fillStyle = 'rgba(0, 0, 0, 0.72)';
-                tempCtx.fillRect(0, 0, 800, 600);
-                
-                tempCtx.globalCompositeOperation = 'destination-out';
-                tempCtx.beginPath();
-                tempCtx.arc(400, 300, 50, 0, Math.PI * 2);
-                tempCtx.fill();
-                
-                ctx.drawImage(tempCanvas, 0, 0);
-
-                // 3. Bright Yellow Circle Spotlight Outline
-                ctx.beginPath();
-                ctx.arc(400, 300, 50, 0, Math.PI * 2);
-                ctx.strokeStyle = '#FFFF00';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-
-                // 4. Green Panel Bounding Box & Label (if solar detected)
-                if (hasSolar) {
-                    ctx.fillStyle = 'rgba(0, 255, 0, 0.25)';
-                    ctx.fillRect(375, 275, 50, 48);
-                    
-                    ctx.strokeStyle = '#00FF00';
-                    ctx.lineWidth = 2.5;
-                    ctx.strokeRect(375, 275, 50, 48);
-
-                    ctx.font = 'bold 12px monospace';
-                    ctx.fillStyle = '#00FF00';
-                    ctx.fillText(`SOLAR: ${conf.toFixed(2)}`, 368, 266);
-                }
-
-                // 5. Monospaced Header Text Overlay (Matching OpenCV Pipeline)
-                ctx.font = 'bold 13px monospace';
-                ctx.fillStyle = hasSolar ? '#4ADE80' : '#EF4444';
-                const line1 = `ID: ${sampleId}   Solar: ${hasSolar ? 'True' : 'False'}   Buffer: ${bufSize} sqft [${qcStatus}]`;
-                ctx.fillText(line1, 18, 28);
-
-                ctx.font = '12px monospace';
-                ctx.fillStyle = '#E5E7EB';
-                const line2 = `Conf: ${conf.toFixed(3)}   Method: ${method}`;
-                ctx.fillText(line2, 18, 48);
-
-                // 6. Bottom Watermarks
-                ctx.font = 'bold 12px sans-serif';
-                ctx.fillStyle = 'rgba(200, 200, 200, 0.7)';
-                ctx.fillText('Google', 18, 582);
-
-                ctx.font = '10px sans-serif';
-                ctx.fillStyle = 'rgba(180, 180, 180, 0.6)';
-                ctx.fillText('Imagery ©2026 Airbus, Maxar Technologies', 560, 582);
-
-                resolve(canvas.toDataURL('image/jpeg', 0.92));
-            } catch (err) {
-                console.error("Canvas export failed:", err);
-                resolve("");
-            }
-        };
-
-        img.onload = renderGraphics;
-        img.onerror = renderGraphics;
-        img.src = esriUrl;
-    });
-};
-
 const mapContainerStyle = {
     width: '100vw',
     height: '100vh',
@@ -191,6 +84,7 @@ function App() {
     const [isConfirming, setIsConfirming] = useState(false)
     const [isAnalyzing, setIsAnalyzing] = useState(false)
     const [result, setResult] = useState(null)
+    const [analysisError, setAnalysisError] = useState(null)
 
     // ... (rest of state)
 
@@ -229,6 +123,7 @@ function App() {
 
     // --- NAVIGATION HELPERS ---
     const flyToLocation = (targetLoc) => {
+        setAnalysisError(null);
         setFlyTarget(targetLoc);
         if (mapEngine === 'google' && map) {
             map.panTo(targetLoc);
@@ -512,12 +407,14 @@ function App() {
     const onMapClick = useCallback((e) => {
         const lat = typeof e.latLng.lat === 'function' ? e.latLng.lat() : e.latLng.lat;
         const lng = typeof e.latLng.lng === 'function' ? e.latLng.lng() : e.latLng.lng;
+        setAnalysisError(null);
         setSelectedLocation({ lat, lng });
         setIsConfirming(true);
         setResult(null);
     }, []);
 
     const handleConfirm = async () => {
+        setAnalysisError(null);
         setIsConfirming(false);
         setIsAnalyzing(true);
 
@@ -525,48 +422,17 @@ function App() {
             const response = await axios.post('/analyze', {
                 lat: selectedLocation.lat,
                 lon: selectedLocation.lng
-            }, { timeout: 8000 });
+            }, { timeout: 120000 });
 
             setResult(response.data);
         } catch (error) {
-            console.warn("Live backend unreachable, engaging resilient client-side AI analysis fallback:", error);
-            // Deterministic simulation based on coordinate seed so hackathon evaluators get a 100% working demo
-            const seed = Math.abs(Math.sin(selectedLocation.lat * 1000 + selectedLocation.lng * 2000));
-            const hasSolar = seed > 0.3; // 70% detection probability
-            const area = hasSolar ? Math.round((18 + seed * 22) * 10) / 10 : 0;
-            const capacity = hasSolar ? Math.round((area / 5.0) * 100) / 100 : 0;
-            const confidence = hasSolar ? Math.round((0.82 + seed * 0.16) * 100) / 100 : Math.round((0.15 + seed * 0.2) * 100) / 100;
-            
-            // Allow realistic processing window so the evaluation feels authentic
-            await new Promise(r => setTimeout(r, 1200));
-
-            const sampleIdStr = `EVAL-${Math.floor(Date.now() / 1000)}`;
-            const bakedSpotlightJpeg = await renderSpotlightCanvasDataUrl({
-                sample_id: sampleIdStr,
-                has_solar: hasSolar,
-                confidence: confidence,
-                pv_area_sqm_est: area,
-                capacity_kw_est: capacity
-            }, selectedLocation);
-
-            setResult({
-                sample_id: sampleIdStr,
-                lat: selectedLocation.lat,
-                lon: selectedLocation.lng,
-                has_solar: hasSolar,
-                confidence: confidence,
-                pv_area_sqm_est: area,
-                capacity_kw_est: capacity,
-                euclidean_distance_m_est: Math.round((2.4 + seed * 3.1) * 10) / 10,
-                buffer_size: 1200,
-                qc_status: hasSolar ? "VERIFIABLE" : "NOT_FOUND",
-                detection_method: "6-Stage Multi-Scale YOLOv12",
-                image_base64: bakedSpotlightJpeg,
-                image_metadata: {
-                    source: "Esri High-Resolution Satellite",
-                    capture_date: new Date().toISOString().split('T')[0]
-                }
-            });
+            console.error("Solar analysis request failed:", error);
+            const message = error.response?.data?.detail
+                || (error.code === 'ECONNABORTED'
+                    ? "The analysis took longer than two minutes. Please try again."
+                    : error.message || "The analysis service could not be reached.");
+            setAnalysisError(`Analysis failed: ${message}`);
+            setIsConfirming(true);
         } finally {
             setIsAnalyzing(false);
         }
@@ -1304,6 +1170,11 @@ Click **"Bulk Analysis"** to upload CSV or Excel files with multiple coordinates
                                         <span>Lat: {selectedLocation.lat.toFixed(5)}</span>
                                         <span>Lon: {selectedLocation.lng.toFixed(5)}</span>
                                     </div>
+                                    {analysisError && (
+                                        <p role="alert" className="mb-4 text-sm text-red-300 break-words">
+                                            {analysisError}
+                                        </p>
+                                    )}
                                     <div className="flex gap-2.5">
                                         <button 
                                             onClick={() => setIsConfirming(false)} 
