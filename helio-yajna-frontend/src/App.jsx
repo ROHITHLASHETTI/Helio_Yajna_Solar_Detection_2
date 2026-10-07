@@ -422,7 +422,7 @@ function App() {
             const response = await axios.post('/analyze', {
                 lat: selectedLocation.lat,
                 lon: selectedLocation.lng
-            }, { timeout: 120000 });
+            });
 
             setResult(response.data);
         } catch (error) {
